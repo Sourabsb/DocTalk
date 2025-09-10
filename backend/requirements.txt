@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+python-multipart
+python-dotenv
+langchain
+langchain-community
+sentence-transformers
+faiss-cpu
+google-generativeai
+azure-cognitiveservices-vision-computervision
+pypdf
+python-docx
+reportlab
+pillow
+pydantic
+itsdangerous

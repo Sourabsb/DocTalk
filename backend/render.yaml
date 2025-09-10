@@ -1,0 +1,25 @@
+{
+  "services": [
+    {
+      "type": "web",
+      "name": "doctalk-backend",
+      "runtime": "python",
+      "buildCommand": "pip install -r requirements.txt",
+      "startCommand": "python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT",
+      "envVars": [
+        {
+          "key": "AZURE_VISION_ENDPOINT",
+          "sync": false
+        },
+        {
+          "key": "AZURE_VISION_KEY",
+          "sync": false
+        },
+        {
+          "key": "GEMINI_API_KEY",
+          "sync": false
+        }
+      ]
+    }
+  ]
+}

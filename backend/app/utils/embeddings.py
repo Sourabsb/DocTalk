@@ -1,13 +1,18 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from sentence_transformers import SentenceTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from typing import List, Dict
 from ..config import CHUNK_SIZE, CHUNK_OVERLAP
 
 class EmbeddingProcessor:
     def __init__(self):
-        # Use smaller, memory-efficient model for production
-        self.model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
+        # Use TF-IDF instead of sentence-transformers (lightweight)
+        self.vectorizer = TfidfVectorizer(
+            max_features=1000,
+            stop_words='english',
+            ngram_range=(1, 2)
+        )
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=CHUNK_SIZE,
             chunk_overlap=CHUNK_OVERLAP,
@@ -33,8 +38,8 @@ class EmbeddingProcessor:
         if not texts:
             raise ValueError("No documents to process")
         
-        # Create embeddings
-        embeddings = self.model.encode(texts)
+        # Create TF-IDF embeddings (lightweight)
+        embeddings = self.vectorizer.fit_transform(texts)
         
         # Store data
         self.texts = texts
@@ -47,10 +52,11 @@ class EmbeddingProcessor:
         if self.embeddings is None:
             return []
             
-        query_embedding = self.model.encode([query])
+        # Transform query using same vectorizer
+        query_embedding = self.vectorizer.transform([query])
         
         # Calculate cosine similarity
-        similarities = np.dot(self.embeddings, query_embedding.T).flatten()
+        similarities = cosine_similarity(query_embedding, self.embeddings).flatten()
         top_indices = np.argsort(similarities)[::-1]
         
         # Get diverse results - try to include results from different sources
